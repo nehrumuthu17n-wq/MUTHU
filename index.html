@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Trust Score</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scanline-overlay" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="34" height="34">
+          <path d="M20 3 L34 9 V19 C34 28 28 34.5 20 37 C12 34.5 6 28 6 19 V9 Z" fill="none" stroke="var(--accent-teal)" stroke-width="2"/>
+          <path d="M13 20 L18 25 L27 14" fill="none" stroke="var(--accent-teal)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Digital Trust Score</span>
+        <span class="brand-sub">Preliminary risk screening for links, mail, codes &amp; images</span>
+      </div>
+    </div>
+    <div class="header-tag">DTS ENGINE v1.0 &middot; OFFLINE HEURISTIC MODE</div>
+  </div>
+</header>
+
+<main class="app-shell">
+
+  <nav class="mode-switch" role="tablist" aria-label="Content type">
+    <button class="mode-btn active" data-mode="url" role="tab" aria-selected="true">
+      <span class="mode-icon">&#128279;</span> URL
+    </button>
+    <button class="mode-btn" data-mode="email" role="tab" aria-selected="false">
+      <span class="mode-icon">&#9993;</span> Email
+    </button>
+    <button class="mode-btn" data-mode="qr" role="tab" aria-selected="false">
+      <span class="mode-icon">&#9633;</span> QR Code
+    </button>
+    <button class="mode-btn" data-mode="image" role="tab" aria-selected="false">
+      <span class="mode-icon">&#9679;</span> Image
+    </button>
+  </nav>
+
+  <section class="panel-grid">
+
+    <div class="input-panel card">
+
+      <!-- URL FORM -->
+      <form id="form-url" class="analyze-form active" data-endpoint="/api/analyze/url">
+        <label class="field-label" for="url-input">Paste a link to check</label>
+        <input id="url-input" name="url" type="text" placeholder="https://example.com/reset-password" required>
+        <button type="submit" class="scan-btn">Scan Link</button>
+      </form>
+
+      <!-- EMAIL FORM -->
+      <form id="form-email" class="analyze-form" data-endpoint="/api/analyze/email">
+        <label class="field-label" for="email-from">Sender ("From" header)</label>
+        <input id="email-from" name="from" type="text" placeholder='PayPal Support <support@paypa1-secure.com>'>
+        <label class="field-label" for="email-subject">Subject</label>
+        <input id="email-subject" name="subject" type="text" placeholder="Your account has been suspended">
+        <label class="field-label" for="email-body">Email body</label>
+        <textarea id="email-body" name="body" rows="7" placeholder="Paste the full email text here, including any links..."></textarea>
+        <button type="submit" class="scan-btn">Scan Email</button>
+      </form>
+
+      <!-- QR FORM -->
+      <form id="form-qr" class="analyze-form" data-endpoint="/api/analyze/qr" data-filefield="image">
+        <label class="field-label" for="qr-input">Upload a QR code image</label>
+        <div class="dropzone" id="qr-dropzone">
+          <input id="qr-input" name="image" type="file" accept="image/*" capture="environment" hidden>
+          <div class="dropzone-hint">
+            <span class="dropzone-icon">&#9633;</span>
+            <span>Click to upload or drag a QR image here</span>
+          </div>
+          <img class="preview-img" id="qr-preview" hidden>
+        </div>
+        <button type="submit" class="scan-btn">Scan QR Code</button>
+      </form>
+
+      <!-- IMAGE FORM -->
+      <form id="form-image" class="analyze-form" data-endpoint="/api/analyze/image" data-filefield="image">
+        <label class="field-label" for="image-input">Upload an image to check for edits</label>
+        <div class="dropzone" id="image-dropzone">
+          <input id="image-input" name="image" type="file" accept="image/*" capture="environment" hidden>
+          <div class="dropzone-hint">
+            <span class="dropzone-icon">&#9679;</span>
+            <span>Click to upload or drag an image here</span>
+          </div>
+          <img class="preview-img" id="image-preview" hidden>
+        </div>
+        <button type="submit" class="scan-btn">Scan Image</button>
+      </form>
+
+      <p class="disclaimer">This tool gives a preliminary risk indication only. It does not replace official security software, IT policy, or your own judgment.</p>
+    </div>
+
+    <div class="result-panel card" id="result-panel">
+      <div class="result-empty" id="result-empty">
+        <div class="radar" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" class="radar-ring"/>
+            <circle cx="100" cy="100" r="60" class="radar-ring"/>
+            <circle cx="100" cy="100" r="30" class="radar-ring"/>
+            <line x1="100" y1="10" x2="100" y2="190" class="radar-ring"/>
+            <line x1="10" y1="100" x2="190" y2="100" class="radar-ring"/>
+            <path id="radar-sweep" d="M100 100 L100 10 A90 90 0 0 1 163 137 Z" class="radar-sweep"/>
+          </svg>
+        </div>
+        <p>Run a scan to see the Trust Score here.</p>
+      </div>
+
+      <div class="result-body" id="result-body" hidden>
+        <div class="score-row">
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 140 140" width="140" height="140">
+              <circle cx="70" cy="70" r="60" class="gauge-track"/>
+              <circle cx="70" cy="70" r="60" class="gauge-fill" id="gauge-fill"/>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-number" id="score-number">--</span>
+              <span class="gauge-max">/100</span>
+            </div>
+          </div>
+          <div class="score-meta">
+            <span class="risk-pill" id="risk-pill">--</span>
+            <span class="explicit-pill" id="explicit-pill" hidden>Explicit content risk</span>
+            <span class="content-type-tag" id="content-type-tag"></span>
+            <span id="image-verdict-line" class="image-verdict" hidden></span>
+            <div id="qr-payload-line" class="qr-payload" hidden></div>
+          </div>
+        </div>
+
+        <div class="findings-section">
+          <h3 class="section-heading">Why this score</h3>
+          <ul class="findings-list" id="findings-list"></ul>
+        </div>
+
+        <div class="reco-section">
+          <h3 class="section-heading">Recommended actions</h3>
+          <ul class="reco-list" id="reco-list"></ul>
+        </div>
+
+        <div class="links-section" id="links-section" hidden>
+          <h3 class="section-heading">Links found in this message</h3>
+          <ul class="links-list" id="links-list"></ul>
+        </div>
+      </div>
+
+      <div class="result-error" id="result-error" hidden></div>
+      <div class="result-loading" id="result-loading" hidden>
+        <div class="spinner"></div>
+        <span>Analyzing content&hellip;</span>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer class="site-footer">
+  <span>Digital Trust Score &mdash; ML / NLP / CV heuristic prototype. Analysis runs locally; no data leaves this server.</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Flask==3.1.3
+flask-cors==4.0.1   # optional: app.py falls back to manual CORS headers if this isn't installed
+Pillow>=10.0.0
+numpy>=1.24.0
+opencv-python-headless>=4.8.0
+scipy>=1.10.0
